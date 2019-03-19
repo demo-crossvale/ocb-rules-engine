@@ -1,0 +1,67 @@
+package com.resources;
+
+import com.model.FleetInfo;
+
+rule "New Year Scheduler"
+	no-loop true
+	ruleflow-group "scheduler"
+	date-effective "30-Dec-2019"
+	date-expires "02-Jan-2020"
+	dialect "mvel"
+	when
+		f : FleetInfo( role == "A" )
+	then
+	    modify(f){setIntendedTargetCapacity(1 + f.getIntendedTargetCapacity())}
+		System.out.println("Fired Scheduler");
+end
+/*
+rule "New Year Scheduler Advanced"
+	no-loop true
+	ruleflow-group "scheduler"
+	calendars "new-year-rush"
+	dialect "mvel"
+	when
+		f : FleetInfo( role == "A" )
+	then
+	    modify(f){setIntendedTargetCapacity(1 + f.getIntendedTargetCapacity())}
+		System.out.println("Fired Scheduler for New Years Rush");
+end
+*/
+rule "Row 1 SchedulerCalculation"
+	no-loop true
+	ruleflow-group "scheduler"
+	date-effective "13-Mar-2019"
+	date-expires "30-Sep-2019"
+	dialect "mvel"
+	when
+		f : FleetInfo( role == "A" )
+	then
+	    modify(f){setIntendedTargetCapacity(1 + f.getIntendedTargetCapacity())}
+		System.out.println("Fired Scheduler for A");
+end
+
+rule "Row 2 SchedulerCalculation"
+	no-loop true
+	ruleflow-group "scheduler"
+	date-effective "10-Aug-2019"
+	date-expires "30-Aug-2019"
+	dialect "mvel"
+	when
+		f : FleetInfo( role == "B" )
+	then
+		modify(f){setIntendedTargetCapacity(2 + f.getIntendedTargetCapacity())}
+		System.out.println("Fired Scheduler for B");
+end
+
+rule "Row 3 SchedulerCalculation"
+	no-loop true
+	ruleflow-group "scheduler"
+	date-effective "30-Sep-2018"
+	date-expires "30-Nov-2018"
+	dialect "mvel"
+	when
+		f : FleetInfo( role == "C" )
+	then
+		modify(f){setIntendedTargetCapacity(3 + f.getIntendedTargetCapacity())}
+		System.out.println("Fired Scheduler for C");
+end

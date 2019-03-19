@@ -1,0 +1,17 @@
+//created on: Sep 27, 2018
+package com.resources;
+
+import com.model.FleetInfo;
+
+rule "InitializeTargetCapacity"
+	dialect "mvel"
+	no-loop true
+	ruleflow-group "initialize"
+	when
+		f : FleetInfo( intendedTargetCapacity != ( f.getCurrentCapacity() ) )
+	then
+		modify( f ) {
+				setIntendedTargetCapacity( f.getCurrentCapacity() )
+		}
+		System.out.println("Initialized Intended Target Capacity");
+end
