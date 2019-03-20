@@ -1,0 +1,30 @@
+//created on: Sep 27, 2018
+package com.resources;
+
+import com.model.RoleInfo;
+
+rule "gradualScaleUp"
+	dialect "mvel"
+	no-loop true
+	ruleflow-group "performance"
+	when
+		r : RoleInfo( r.getPerformanceInfo().getCpu() > 85 || r.getPerformanceInfo().getMemory() > 85)
+	then
+		modify( r ) {
+				setRoleTargetCapacity( r.getRoleTargetCapacity()+1 )
+		}
+		System.out.println("Gradual scale up by 1");
+end
+
+rule "gradualScaleDown"
+	dialect "mvel"
+	no-loop true
+	ruleflow-group "performance"
+	when
+		r : RoleInfo( r.getPerformanceInfo().getCpu() < 15 && r.getPerformanceInfo().getMemory() < 15)
+	then
+		modify( r ) {
+				setRoleTargetCapacity( r.getRoleTargetCapacity()-1 )
+		}
+		System.out.println("Gradual scale down by 1");
+end
