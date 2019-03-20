@@ -1,0 +1,55 @@
+package com.resources;
+
+import com.model.RoleInfo;
+
+rule "New Year adhoc"
+	no-loop true
+	ruleflow-group "adhoc"
+	date-effective "30-Dec-2019"
+	date-expires "02-Jan-2020"
+	dialect "mvel"
+	when
+		r : RoleInfo( role == "A" )
+	then
+	    modify(r){setRoleTargetCapacity(1 + r.getRoleTargetCapacity())}
+		System.out.println("Fired AdHoc");
+end
+
+rule "Row 1 adhoc"
+	no-loop true
+	ruleflow-group "adhoc"
+	date-effective "13-Mar-2019"
+	date-expires "30-Sep-2019"
+	dialect "mvel"
+	when
+		r : RoleInfo( role == "A" )
+	then
+	    modify(r){setRoleTargetCapacity(1 + r.getRoleTargetCapacity())}
+		System.out.println("Fired AdHoc for A");
+end
+
+rule "Row 2 adhoc"
+	no-loop true
+	ruleflow-group "adhoc"
+	date-effective "10-Aug-2019"
+	date-expires "30-Aug-2019"
+	dialect "mvel"
+	when
+		r : RoleInfo( role == "B" )
+	then
+		modify(r){setRoleTargetCapacity(2 + r.getRoleTargetCapacity())}
+		System.out.println("Fired AdHoc for B");
+end
+
+rule "Row 3 adhoc"
+	no-loop true
+	ruleflow-group "adhoc"
+	date-effective "30-Sep-2018"
+	date-expires "30-Nov-2018"
+	dialect "mvel"
+	when
+		r : RoleInfo( role == "C" )
+	then
+		modify(r){setRoleTargetCapacity(3 + r.getRoleTargetCapacity())}
+		System.out.println("Fired AdHoc for C");
+end

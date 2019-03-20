@@ -1,5 +1,8 @@
 package com.controller;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +16,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.model.FleetChange;
 import com.model.FleetInfo;
+import com.model.PerformanceInfo;
+import com.model.RoleInfo;
 import com.model.RulesEngineRequest;
 import com.model.RulesEngineResponse;
 import com.model.RulesFact;
@@ -31,27 +36,28 @@ public class RulesController {
 	@RequestMapping(value="/cloudbalancer", method=RequestMethod.POST, consumes="application/json", produces="application/json")
 	@ResponseBody
 	public String cloudBalance(@RequestBody RulesEngineRequest request) throws Exception{
-		RulesFact inputFact = new RulesFact();
+
+		// Step 1: Fire rules to calculate intendedTargetCapacity for each roles
 		RulesFact outputFact = new RulesFact();
 		boolean invalidState = false;
-		
+
 		System.out.println("<== Begin: Rules Engine ==>");
-		
+
 		try {
-			BeanUtils.copyProperties(request, inputFact.getRulesRequest());
-			// Set time
-			outputFact.getRulesRequest().setCurrentDateTime(inputFact.getRulesRequest().getCurrentDateTime());
-			
-			for(FleetInfo fi: inputFact.getRulesRequest().getFleetInfo()) {
-				rulesService.cloudBalancer(fi);
-				// Update output
-				outputFact.getRulesRequest().getFleetInfo().add(fi);
-				FleetChange fc = new FleetChange();
-				fc.setFleetId(fi.getFleetId());
-				fc.setNewTargetCapacity(fi.getIntendedTargetCapacity());
-				outputFact.getRulesResponse().addFleetsChange(fc);
+			outputFact.getRulesRequest().setCurrentDateTime(request.getCurrentDateTime());
+			for(RoleInfo ri: request.getRoleInfo()) {
+				// Execute rules per role:
+				System.out.println("<-- Working on role: "+ri.getRole()+" -->");
+				rulesService.roleBalancer(ri);
+				outputFact.getRulesRequest().addRoleInfo(ri);
 			}
+			System.out.println("<== End: Rules Engine ==>");
 			
+			// Step 2: Calculate FleetsChange
+			BeanUtils.copyProperties(request, outputFact.getRulesRequest());
+			//** TODO: Flat out PerformanceInfo[]
+			calculateFleetsChange(outputFact);
+
 		}catch (BeansException be) {
 			System.out.println("Exception occurred copying request info to inputFact!");
 			invalidState = true;
@@ -62,22 +68,108 @@ public class RulesController {
 			e.printStackTrace();
 			throw new Exception();
 		}
-	
+
 		if(invalidState) {
 			outputFact.getRulesResponse().setStatus("invalid");
 		}
-		
+
+		/*
+		 * 	1. Rule: Scheduled
+		 *  	- based on performanceInfo.dateTime
+		 * 	2. Rule: Performance based
+		 * 		- based on cpu and memory
+		 * 	3. Rule: Workload based
+		 * 		** Need to understand this later
+		 * */
+
 		String jsonResponse = getJson(outputFact.getRulesResponse());
-		System.out.println("<== End: Rules Engine ==>");
+		System.out.println("<<=====================>>\n");
 		return jsonResponse;
 
 	}
 
-	private String getJson(RulesEngineResponse response) throws Exception {
+	private void calculateFleetsChange(RulesFact outputFact) {
+
+		//*TODO: Need to update this method to make decision on both savings and cost, also multiple fleets can be updated*//
+		for(RoleInfo ri: outputFact.getRulesRequest().getRoleInfo()) {
+			java.util.ArrayList<com.model.FleetInfo> fleetList = getRoleFleets(outputFact.getRulesRequest().getFleetInfo(),ri.getRole());
+			Integer fleetTargetSum = targetCapacitySum(fleetList);
+			FleetInfo maxSavingFleet = findMaxSavingFleet(fleetList);
+			FleetInfo minSavingFleet = findMinSavingFleet(fleetList);
+			if(maxSavingFleet == null || minSavingFleet == null) {
+				System.out.println("Error computing max and min saving Fleets");
+			}
+			FleetChange fc = null;
+			// No change if fleets already are at target capacity
+			if(fleetTargetSum < ri.getRoleTargetCapacity()) { 
+				// Scale up
+				fc = new FleetChange();
+				System.out.println("Scaling Up \n >> role: "+ri.getRole()+" >> fleet: "+maxSavingFleet.getFleetId());
+				Integer capacityDiff = (ri.getRoleTargetCapacity() - fleetTargetSum); 
+				fc.setFleetId(maxSavingFleet.getFleetId());
+				fc.setNewTargetCapacity(maxSavingFleet.getCurrentCapacity()+capacityDiff);
+			} else if(fleetTargetSum > ri.getRoleTargetCapacity()) { 
+				// Scale down
+				fc = new FleetChange();
+				System.out.println("Scaling Down \n >> role: "+ri.getRole()+" >> fleet: "+minSavingFleet.getFleetId());
+				Integer capacityDiff = (fleetTargetSum - ri.getRoleTargetCapacity()); 
+				fc.setFleetId(minSavingFleet.getFleetId());
+				//*TODO : make sure the targetFleet don't go below 0 *//
+				fc.setNewTargetCapacity(minSavingFleet.getCurrentCapacity()-capacityDiff);
+			}
+			if(fc!=null) {
+				outputFact.getRulesResponse().addFleetsChange(fc);
+			}
+		}
+	}
+
+	private FleetInfo findMinSavingFleet(ArrayList<FleetInfo> fleetList) {
+		FleetInfo minFi = new FleetInfo();
+		int minSaving = 100;
+		for(FleetInfo f: fleetList) {
+			if(f.getCurrentSaving()!=null && (minSaving > f.getCurrentSaving().intValue())) {
+				minSaving = f.getCurrentSaving();
+				minFi = f;
+			}
+		}
+		return minFi;
+	}
+
+	private FleetInfo findMaxSavingFleet(ArrayList<FleetInfo> fleetList) {
+		FleetInfo maxFi = new FleetInfo();
+		int maxSaving = 0;
+		for(FleetInfo f: fleetList) {
+			if(f.getCurrentSaving()!=null && (maxSaving < f.getCurrentSaving().intValue())) {
+				maxSaving = f.getCurrentSaving();
+				maxFi = f;
+			}
+		}
+		return maxFi;
+	}
+
+	private Integer targetCapacitySum(ArrayList<FleetInfo> fleetList) {
+		Integer sum=0;
+		for(FleetInfo f: fleetList) {
+			sum +=f.getCurrentCapacity();
+		}
+		return sum;
+	}
+
+	private ArrayList<FleetInfo> getRoleFleets(ArrayList<FleetInfo> fleetInfo, String role) {
+		ArrayList<FleetInfo> fis = new ArrayList<FleetInfo>();
+		for(FleetInfo f: fleetInfo) {
+			if(f.getRole().equals(role)) {
+				fis.add(f);
+			}
+		}
+		return fis;
+	}
+
+	private String getJson(Object input) throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
 		String jsonResponse = null;
 		try {
-			jsonResponse = mapper.writeValueAsString(response);
+			jsonResponse = mapper.writeValueAsString(input);
 		} catch (JsonProcessingException e) {
 			System.out.println("Error converting response into JSON format!");
 			e.printStackTrace();
