@@ -8,7 +8,7 @@ rule "gradualScaleUp"
 	no-loop true
 	ruleflow-group "performance"
 	when
-		r : RoleInfo( r.getPerformanceInfo().getCpu() > 85 || r.getPerformanceInfo().getMemory() > 85)
+		r : RoleInfo( r.getFlatPerformanceInfo().getCpu() > 85 || r.getFlatPerformanceInfo().getMemory() > 85)
 	then
 		modify( r ) {
 				setRoleTargetCapacity( r.getRoleTargetCapacity()+1 )
@@ -21,7 +21,7 @@ rule "gradualScaleDown"
 	no-loop true
 	ruleflow-group "performance"
 	when
-		r : RoleInfo( r.getPerformanceInfo().getCpu() < 15 && r.getPerformanceInfo().getMemory() < 15)
+		r : RoleInfo( r.getFlatPerformanceInfo().getCpu() < 15 && r.getFlatPerformanceInfo().getMemory() < 15)
 	then
 		modify( r ) {
 				setRoleTargetCapacity( r.getRoleTargetCapacity()-1 )

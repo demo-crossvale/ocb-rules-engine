@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 import com.model.FleetInfo;
 import com.model.PerformanceInfo;
 import com.model.RoleInfo;
-import com.model.RulesEngineRequest;
-import com.model.RulesEngineResponse;
+import com.model.request.RulesEngineRequest;
+import com.model.response.RulesEngineResponse;
 
 @Service
 public class RulesService {

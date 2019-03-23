@@ -7,20 +7,18 @@ public class RoleInfo implements java.io.Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private java.lang.String role;
-	//private ArrayList<com.model.PerformanceInfo> performanceInfo;
-	com.model.PerformanceInfo performanceInfo;
+	private ArrayList<com.model.PerformanceInfo> performanceInfo;
+	private com.model.PerformanceInfo flatPerformanceInfo;
 	private java.lang.Integer roleTargetCapacity;
 	
-	public RoleInfo(String role, PerformanceInfo performanceInfo, 
-			Integer intendedTargetCapacity) {//ArrayList<PerformanceInfo> performanceInfo) {
+	public RoleInfo(String role, Integer intendedTargetCapacity, ArrayList<PerformanceInfo> performanceInfo) {
 		this.role = role;
 		this.performanceInfo = performanceInfo;
 		this.roleTargetCapacity = intendedTargetCapacity;
 	}
 	
 	public RoleInfo() {
-		//performanceInfo = new ArrayList<PerformanceInfo>();
-		performanceInfo = new PerformanceInfo();
+		performanceInfo = new ArrayList<PerformanceInfo>();
 	}
 	
 	public java.lang.String getRole() {
@@ -28,14 +26,6 @@ public class RoleInfo implements java.io.Serializable {
 	}
 	public void setRole(java.lang.String role) {
 		this.role = role;
-	}
-
-	public com.model.PerformanceInfo getPerformanceInfo() {
-		return performanceInfo;
-	}
-
-	public void setPerformanceInfo(com.model.PerformanceInfo performanceInfo) {
-		this.performanceInfo = performanceInfo;
 	}
 
 	public java.lang.Integer getRoleTargetCapacity() {
@@ -46,14 +36,22 @@ public class RoleInfo implements java.io.Serializable {
 		this.roleTargetCapacity = roleTargetCapacity;
 	}
 	
-//	public ArrayList<com.model.PerformanceInfo> getPerformanceInfo() {
-//		return performanceInfo;
-//	}
-//	public void setPerformanceInfo(ArrayList<com.model.PerformanceInfo> performanceInfo) {
-//		this.performanceInfo = performanceInfo;
-//	}
-//	public void addPerformanceInfo(com.model.PerformanceInfo performanceInfo) {
-//		this.performanceInfo.add(performanceInfo);
-//	}
+	public ArrayList<com.model.PerformanceInfo> getPerformanceInfo() {
+		return performanceInfo;
+	}
+	public void setPerformanceInfo(ArrayList<com.model.PerformanceInfo> performanceInfo) {
+		this.performanceInfo = performanceInfo;
+	}
+	public void addPerformanceInfo(com.model.PerformanceInfo performanceInfo) {
+		this.performanceInfo.add(performanceInfo);
+	}
+
+	public com.model.PerformanceInfo getFlatPerformanceInfo() {
+		return flatPerformanceInfo;
+	}
+
+	public void setFlatPerformanceInfo(com.model.PerformanceInfo flatPerformanceInfo) {
+		this.flatPerformanceInfo = flatPerformanceInfo;
+	}
 	
 }

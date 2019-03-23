@@ -18,9 +18,9 @@ import com.model.FleetChange;
 import com.model.FleetInfo;
 import com.model.PerformanceInfo;
 import com.model.RoleInfo;
-import com.model.RulesEngineRequest;
-import com.model.RulesEngineResponse;
 import com.model.RulesFact;
+import com.model.request.RulesEngineRequest;
+import com.model.response.RulesEngineResponse;
 import com.service.RulesService;
 
 @RestController
@@ -38,28 +38,34 @@ public class RulesController {
 	public String cloudBalance(@RequestBody RulesEngineRequest request) throws Exception{
 
 		// Step 1: Fire rules to calculate intendedTargetCapacity for each roles
+		RulesFact inputFact = new RulesFact();
 		RulesFact outputFact = new RulesFact();
 		boolean invalidState = false;
 
 		System.out.println("<== Begin: Rules Engine ==>");
 
 		try {
-			outputFact.getRulesRequest().setCurrentDateTime(request.getCurrentDateTime());
-			for(RoleInfo ri: request.getRoleInfo()) {
+			inputFact.getRulesRequest().setCurrentDateTime(request.getCurrentDateTime());
+			BeanUtils.copyProperties(request, inputFact.getRulesRequest());
+			// Flat out PerformanceInfo[]
+			calculateFlatPerformanceInfo(inputFact.getRulesRequest());
+			for(RoleInfo ri: inputFact.getRulesRequest().getRoleInfo()) {
 				// Execute rules per role:
 				System.out.println("<-- Working on role: "+ri.getRole()+" -->");
 				rulesService.roleBalancer(ri);
 				outputFact.getRulesRequest().addRoleInfo(ri);
 			}
 			System.out.println("<== End: Rules Engine ==>");
-			
+
 			// Step 2: Calculate FleetsChange
-			BeanUtils.copyProperties(request, outputFact.getRulesRequest());
-			//** TODO: Flat out PerformanceInfo[]
-			calculateFleetsChange(outputFact);
+			calculateFleetsChange(inputFact, outputFact);
 
 		}catch (BeansException be) {
 			System.out.println("Exception occurred copying request info to inputFact!");
+			invalidState = true;
+			throw new Exception();
+		}catch(NullPointerException ne) {
+			System.out.println("Null RulesRequest in input!");
 			invalidState = true;
 			throw new Exception();
 		}catch (Exception e) {
@@ -88,11 +94,35 @@ public class RulesController {
 
 	}
 
-	private void calculateFleetsChange(RulesFact outputFact) {
+	private void calculateFlatPerformanceInfo(RulesEngineRequest rulesRequest) throws NullPointerException {
+
+		if(null == rulesRequest || null == rulesRequest.getRoleInfo()) {
+			throw new NullPointerException("Null RulesRequest in input!");
+		}
+		if(rulesRequest.getRoleInfo().size()>0) {
+			for(RoleInfo role: rulesRequest.getRoleInfo()) {
+				int size = role.getPerformanceInfo().size();
+				PerformanceInfo flatPI = new PerformanceInfo();
+				int cpuSum = 0;
+				int memorySum = 0;
+				for(PerformanceInfo pi: role.getPerformanceInfo()) {
+					cpuSum += pi.getCpu();
+					memorySum += pi.getMemory();
+					// Selecting latest dateTime because the average is for last few minutes:
+					flatPI.setDateTime(pi.getDateTime());
+				}
+				flatPI.setCpu(new Integer(cpuSum/size));
+				flatPI.setMemory(new Integer(memorySum/size));
+				role.setFlatPerformanceInfo(flatPI);
+			}
+		}
+	}
+
+	private void calculateFleetsChange(RulesFact inputFact, RulesFact outputFact) {
 
 		//*TODO: Need to update this method to make decision on both savings and cost, also multiple fleets can be updated*//
 		for(RoleInfo ri: outputFact.getRulesRequest().getRoleInfo()) {
-			java.util.ArrayList<com.model.FleetInfo> fleetList = getRoleFleets(outputFact.getRulesRequest().getFleetInfo(),ri.getRole());
+			java.util.ArrayList<com.model.FleetInfo> fleetList = getRoleFleets(inputFact.getRulesRequest().getFleetInfo(),ri.getRole());
 			Integer fleetTargetSum = targetCapacitySum(fleetList);
 			FleetInfo maxSavingFleet = findMaxSavingFleet(fleetList);
 			FleetInfo minSavingFleet = findMinSavingFleet(fleetList);

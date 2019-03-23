@@ -1,7 +1,10 @@
-package com.model;
+package com.model.request;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+
+import com.model.FleetInfo;
+import com.model.RoleInfo;
 
 public class RulesEngineRequest implements Serializable {
 

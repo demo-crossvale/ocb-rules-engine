@@ -1,6 +1,8 @@
-package com.model;
+package com.model.response;
 
 import java.io.Serializable;
+
+import com.model.FleetChange;
 
 public class RulesEngineResponse implements Serializable {
 
