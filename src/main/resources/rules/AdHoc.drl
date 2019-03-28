@@ -9,10 +9,10 @@ rule "New Year adhoc"
 	date-expires "02-Jan-2020"
 	dialect "mvel"
 	when
-		r : RoleInfo( role == "A" )
+		r : RoleInfo( role == "compute" )
 	then
 	    modify(r){setRoleTargetCapacity(1 + r.getRoleTargetCapacity())}
-		System.out.println("Fired AdHoc");
+		System.out.println("Fired AdHoc for compute");
 end
 
 rule "Row 1 adhoc"
@@ -22,10 +22,10 @@ rule "Row 1 adhoc"
 	date-expires "30-Sep-2019"
 	dialect "mvel"
 	when
-		r : RoleInfo( role == "A" )
+		r : RoleInfo( role == "compute" )
 	then
 	    modify(r){setRoleTargetCapacity(1 + r.getRoleTargetCapacity())}
-		System.out.println("Fired AdHoc for A");
+		System.out.println("Fired AdHoc for compute");
 end
 
 rule "Row 2 adhoc"
@@ -35,10 +35,10 @@ rule "Row 2 adhoc"
 	date-expires "30-Aug-2019"
 	dialect "mvel"
 	when
-		r : RoleInfo( role == "B" )
+		r : RoleInfo( role == "web" )
 	then
 		modify(r){setRoleTargetCapacity(2 + r.getRoleTargetCapacity())}
-		System.out.println("Fired AdHoc for B");
+		System.out.println("Fired AdHoc for web");
 end
 
 rule "Row 3 adhoc"
@@ -48,8 +48,8 @@ rule "Row 3 adhoc"
 	date-expires "30-Nov-2018"
 	dialect "mvel"
 	when
-		r : RoleInfo( role == "C" )
+		r : RoleInfo( role == "operations" )
 	then
 		modify(r){setRoleTargetCapacity(3 + r.getRoleTargetCapacity())}
-		System.out.println("Fired AdHoc for C");
+		System.out.println("Fired AdHoc for operations");
 end
