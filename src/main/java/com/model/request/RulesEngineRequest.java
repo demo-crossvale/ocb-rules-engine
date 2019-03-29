@@ -3,6 +3,9 @@ package com.model.request;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
+
 import com.model.FleetInfo;
 import com.model.RoleInfo;
 
@@ -33,7 +36,12 @@ public class RulesEngineRequest implements Serializable {
 	}
 
 	public void setCurrentDateTime(java.lang.String currentDateTime) {
-		this.currentDateTime = currentDateTime;
+		DateTimeFormatter parser = ISODateTimeFormat.dateTimeNoMillis();
+		try {
+			this.currentDateTime = String.valueOf(parser.parseDateTime(currentDateTime).getHourOfDay()*100);
+		}catch(Exception e) {
+			this.currentDateTime = currentDateTime;
+		}
 	}
 
 	public ArrayList<com.model.FleetInfo> getFleetInfo() {
@@ -51,7 +59,7 @@ public class RulesEngineRequest implements Serializable {
 	public void setRoleInfo(ArrayList<com.model.RoleInfo> roleInfo) {
 		this.roleInfo = roleInfo;
 	}
-	
+
 	public void addRoleInfo(com.model.RoleInfo roleInfo) {
 		this.roleInfo.add(roleInfo);
 	}

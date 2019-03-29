@@ -1,5 +1,8 @@
 package com.model;
 
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
+
 public class PerformanceInfo implements java.io.Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -7,7 +10,7 @@ public class PerformanceInfo implements java.io.Serializable {
 	private java.lang.Integer cpu;
 	private java.lang.Integer memory;
 	private java.lang.String dateTime;
-	
+
 	public PerformanceInfo(Integer cpu, Integer memory, String dateTime) {
 
 		this.cpu = cpu;
@@ -16,7 +19,7 @@ public class PerformanceInfo implements java.io.Serializable {
 	}
 
 	public PerformanceInfo() {
-		
+
 	}
 
 	public java.lang.Integer getCpu() {
@@ -40,7 +43,12 @@ public class PerformanceInfo implements java.io.Serializable {
 	}
 
 	public void setDateTime(java.lang.String dateTime) {
-		this.dateTime = dateTime;
+		DateTimeFormatter parser = ISODateTimeFormat.dateTimeNoMillis();
+		try {
+			this.dateTime = String.valueOf(parser.parseDateTime(dateTime).getHourOfDay()*100);
+		}catch(Exception e) {
+			this.dateTime = dateTime;
+		}
 	}
-	
+
 }

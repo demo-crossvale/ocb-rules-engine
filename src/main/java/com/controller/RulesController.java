@@ -3,6 +3,8 @@ package com.controller;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,11 +43,17 @@ public class RulesController {
 		RulesFact inputFact = new RulesFact();
 		RulesFact outputFact = new RulesFact();
 		boolean invalidState = false;
+		
+		DateTimeFormatter parser = ISODateTimeFormat.dateTimeNoMillis();
 
 		System.out.println("<== Begin: Rules Engine ==>");
 
 		try {
-			inputFact.getRulesRequest().setCurrentDateTime(request.getCurrentDateTime());
+			if(request.getCurrentDateTime()==null) {
+				invalidState = true;
+				System.out.println("Current Date-Time not set!");
+				throw new Exception();
+			}
 			BeanUtils.copyProperties(request, inputFact.getRulesRequest());
 			// Flat out PerformanceInfo[]
 			calculateFlatPerformanceInfo(inputFact.getRulesRequest());
@@ -155,7 +163,7 @@ public class RulesController {
 
 	private FleetInfo findMinSavingFleet(ArrayList<FleetInfo> fleetList) {
 		FleetInfo minFi = new FleetInfo();
-		int minSaving = 100;
+		int minSaving = 101;
 		for(FleetInfo f: fleetList) {
 			if(f.getCurrentSaving()!=null && (minSaving > f.getCurrentSaving().intValue())) {
 				minSaving = f.getCurrentSaving();
@@ -167,7 +175,7 @@ public class RulesController {
 
 	private FleetInfo findMaxSavingFleet(ArrayList<FleetInfo> fleetList) {
 		FleetInfo maxFi = new FleetInfo();
-		int maxSaving = 0;
+		int maxSaving = -1;
 		for(FleetInfo f: fleetList) {
 			if(f.getCurrentSaving()!=null && (maxSaving < f.getCurrentSaving().intValue())) {
 				maxSaving = f.getCurrentSaving();

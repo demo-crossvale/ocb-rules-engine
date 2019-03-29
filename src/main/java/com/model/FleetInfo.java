@@ -12,7 +12,7 @@ public class FleetInfo implements Serializable {
 	private java.lang.Integer intendedTargetCapacity;
 	private java.lang.Integer currentCost;
 	private java.lang.Integer currentSaving; // Percent
-	private java.lang.Integer currentTime;
+	//private java.lang.Integer currentTime;
 	
 	public FleetInfo() {
 		
@@ -28,7 +28,7 @@ public class FleetInfo implements Serializable {
 		this.intendedTargetCapacity = intendedTargetCapacity;
 		this.currentCost = currentCost;
 		this.currentSaving = currentSaving;
-		this.currentTime = currentTime;
+		//this.currentTime = currentTime;
 	}
 
 	public java.lang.String getFleetId() {
@@ -79,12 +79,12 @@ public class FleetInfo implements Serializable {
 		this.currentSaving = currentSaving;
 	}
 
-	public java.lang.Integer getCurrentTime() {
+	/*public java.lang.Integer getCurrentTime() {
 		return currentTime;
 	}
 
 	public void setCurrentTime(java.lang.Integer currentTime) {
 		this.currentTime = currentTime;
-	}
+	}*/
 	
 }
