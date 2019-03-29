@@ -64,11 +64,13 @@ public class RulesController {
 		}catch (BeansException be) {
 			System.out.println("Exception occurred copying request info to inputFact!");
 			invalidState = true;
-			throw new Exception();
+			be.printStackTrace();
+			//throw new Exception();
 		}catch(NullPointerException ne) {
 			System.out.println("Null RulesRequest in input!");
 			invalidState = true;
-			throw new Exception();
+			ne.printStackTrace();
+			//throw new Exception();
 		}catch (Exception e) {
 			System.out.println("Exception occurred!");
 			invalidState = true;
