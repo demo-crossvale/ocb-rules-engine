@@ -1,10 +1,6 @@
 package com.controller;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +18,6 @@ import com.model.PerformanceInfo;
 import com.model.RoleInfo;
 import com.model.RulesFact;
 import com.model.request.RulesEngineRequest;
-import com.model.response.RulesEngineResponse;
 import com.service.RulesService;
 
 @RestController
@@ -44,8 +39,6 @@ public class RulesController {
 		RulesFact outputFact = new RulesFact();
 		boolean invalidState = false;
 		
-		DateTimeFormatter parser = ISODateTimeFormat.dateTimeNoMillis();
-
 		System.out.println("<== Begin: Rules Engine ==>");
 
 		try {

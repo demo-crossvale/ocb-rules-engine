@@ -6,9 +6,6 @@ import java.util.ArrayList;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 
-import com.model.FleetInfo;
-import com.model.RoleInfo;
-
 public class RulesEngineRequest implements Serializable {
 
 	private static final long serialVersionUID = 1L;
