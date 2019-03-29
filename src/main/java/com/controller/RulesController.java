@@ -70,10 +70,10 @@ public class RulesController {
 			invalidState = true;
 			throw new Exception();
 		}catch (Exception e) {
-			System.out.println("Unknown Exception occurred!");
+			System.out.println("Exception occurred!");
 			invalidState = true;
 			e.printStackTrace();
-			throw new Exception();
+			//throw new Exception();
 		}
 
 		if(invalidState) {

@@ -15,7 +15,6 @@ public class RulesEngineRequest implements Serializable {
 	private ArrayList<com.model.RoleInfo> roleInfo;
 
 	public RulesEngineRequest() {
-		currentDateTime = "";
 		fleetInfo =  new ArrayList<com.model.FleetInfo>();
 		roleInfo =  new ArrayList<com.model.RoleInfo>();
 	}
