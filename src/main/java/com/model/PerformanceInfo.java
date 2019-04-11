@@ -7,11 +7,11 @@ public class PerformanceInfo implements java.io.Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private java.lang.Integer cpu;
-	private java.lang.Integer memory;
+	private java.lang.Float cpu;
+	private java.lang.Float memory;
 	private java.lang.String dateTime;
 
-	public PerformanceInfo(Integer cpu, Integer memory, String dateTime) {
+	public PerformanceInfo(Float cpu, Float memory, String dateTime) {
 
 		this.cpu = cpu;
 		this.memory = memory;
@@ -22,19 +22,19 @@ public class PerformanceInfo implements java.io.Serializable {
 
 	}
 
-	public java.lang.Integer getCpu() {
+	public java.lang.Float getCpu() {
 		return cpu;
 	}
 
-	public void setCpu(java.lang.Integer cpu) {
+	public void setCpu(java.lang.Float cpu) {
 		this.cpu = cpu;
 	}
 
-	public java.lang.Integer getMemory() {
+	public java.lang.Float getMemory() {
 		return memory;
 	}
 
-	public void setMemory(java.lang.Integer memory) {
+	public void setMemory(java.lang.Float memory) {
 		this.memory = memory;
 	}
 

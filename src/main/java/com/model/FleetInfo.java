@@ -10,8 +10,8 @@ public class FleetInfo implements Serializable {
 	private java.lang.String role;
 	private java.lang.Integer currentCapacity;
 	private java.lang.Integer intendedTargetCapacity;
-	private java.lang.Integer currentCost;
-	private java.lang.Integer currentSaving; // Percent
+	private java.lang.Float currentCost;
+	private java.lang.Float currentSaving; // Percent
 	//private java.lang.Integer currentTime;
 	
 	public FleetInfo() {
@@ -20,7 +20,7 @@ public class FleetInfo implements Serializable {
 
 	public FleetInfo(String fleetId, String role, 
 			Integer currentCapacity, Integer intendedTargetCapacity,
-			Integer currentCost, Integer currentSaving, Integer currentTime) {
+			Float currentCost, Float currentSaving, Integer currentTime) {
 		
 		this.fleetId = fleetId;
 		this.role = role;
@@ -63,19 +63,19 @@ public class FleetInfo implements Serializable {
 		this.intendedTargetCapacity = intendedTargetCapacity;
 	}
 
-	public java.lang.Integer getCurrentCost() {
+	public java.lang.Float getCurrentCost() {
 		return currentCost;
 	}
 
-	public void setCurrentCost(java.lang.Integer currentCost) {
+	public void setCurrentCost(java.lang.Float currentCost) {
 		this.currentCost = currentCost;
 	}
 
-	public java.lang.Integer getCurrentSaving() {
+	public java.lang.Float getCurrentSaving() {
 		return currentSaving;
 	}
 
-	public void setCurrentSaving(java.lang.Integer currentSaving) {
+	public void setCurrentSaving(java.lang.Float currentSaving) {
 		this.currentSaving = currentSaving;
 	}
 

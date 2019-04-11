@@ -38,7 +38,7 @@ public class RulesController {
 		RulesFact inputFact = new RulesFact();
 		RulesFact outputFact = new RulesFact();
 		boolean invalidState = false;
-		
+
 		System.out.println("<== Begin: Rules Engine ==>");
 
 		try {
@@ -114,8 +114,8 @@ public class RulesController {
 					// Selecting latest dateTime because the average is for last few minutes:
 					flatPI.setDateTime(pi.getDateTime());
 				}
-				flatPI.setCpu(new Integer(cpuSum/size));
-				flatPI.setMemory(new Integer(memorySum/size));
+				flatPI.setCpu(new Float(cpuSum/size));
+				flatPI.setMemory(new Float(memorySum/size));
 				role.setFlatPerformanceInfo(flatPI);
 			}
 		}
@@ -127,28 +127,45 @@ public class RulesController {
 		for(RoleInfo ri: outputFact.getRulesRequest().getRoleInfo()) {
 			java.util.ArrayList<com.model.FleetInfo> fleetList = getRoleFleets(inputFact.getRulesRequest().getFleetInfo(),ri.getRole());
 			Integer fleetTargetSum = targetCapacitySum(fleetList);
-			FleetInfo maxSavingFleet = findMaxSavingFleet(fleetList);
-			FleetInfo minSavingFleet = findMinSavingFleet(fleetList);
-			if(maxSavingFleet == null || minSavingFleet == null) {
-				System.out.println("Error computing max and min saving Fleets");
-			}
+
 			FleetChange fc = null;
 			// No change if fleets already are at target capacity
 			if(fleetTargetSum < ri.getRoleTargetCapacity()) { 
 				// Scale up
-				fc = new FleetChange();
-				System.out.println("Scaling Up \n >> role: "+ri.getRole()+" >> fleet: "+maxSavingFleet.getFleetId());
-				Integer capacityDiff = (ri.getRoleTargetCapacity() - fleetTargetSum); 
-				fc.setFleetId(maxSavingFleet.getFleetId());
-				fc.setNewTargetCapacity(maxSavingFleet.getCurrentCapacity()+capacityDiff);
+				System.out.print("Scaling Up \n >> role: "+ri.getRole());
+				FleetInfo maxSavingFleet = findMaxSavingFleet(fleetList);
+				if(maxSavingFleet == null) {
+					System.out.println("Error computing max saving Fleets");
+				}else {
+					fc = new FleetChange();
+					System.out.println(" >> fleet: "+maxSavingFleet.getFleetId());
+					Integer capacityDiff = (ri.getRoleTargetCapacity() - fleetTargetSum); 
+					fc.setFleetId(maxSavingFleet.getFleetId());
+					fc.setNewTargetCapacity(maxSavingFleet.getCurrentCapacity()+capacityDiff);
+				}
 			} else if(fleetTargetSum > ri.getRoleTargetCapacity()) { 
 				// Scale down
-				fc = new FleetChange();
-				System.out.println("Scaling Down \n >> role: "+ri.getRole()+" >> fleet: "+minSavingFleet.getFleetId());
-				Integer capacityDiff = (fleetTargetSum - ri.getRoleTargetCapacity()); 
-				fc.setFleetId(minSavingFleet.getFleetId());
-				//*TODO : make sure the targetFleet don't go below 0 *//
-				fc.setNewTargetCapacity(minSavingFleet.getCurrentCapacity()-capacityDiff);
+				System.out.print("Scaling Down \n >> role: "+ri.getRole());
+				java.util.ArrayList<com.model.FleetInfo> ignoreMinFleets = new java.util.ArrayList<com.model.FleetInfo>();
+				while(true) {
+					FleetInfo minSavingFleet = findMinSavingFleet(fleetList, ignoreMinFleets);
+					if(minSavingFleet == null) {
+						System.out.println("\nError computing min saving Fleets");
+						break;
+					}
+ 					Integer capacityDiff = (fleetTargetSum - ri.getRoleTargetCapacity()); 
+					int newTarget = minSavingFleet.getCurrentCapacity()-capacityDiff;
+					// make sure the targetFleet don't go below 0 
+					if(newTarget > 0) {
+						fc = new FleetChange();
+						System.out.println(" >> fleet: "+minSavingFleet.getFleetId());
+						fc.setFleetId(minSavingFleet.getFleetId());
+						fc.setNewTargetCapacity(newTarget);
+						break;
+					}else {
+						ignoreMinFleets.add(minSavingFleet); // Find another minSavingFleet
+					}
+				}
 			}
 			if(fc!=null) {
 				outputFact.getRulesResponse().addFleetsChange(fc);
@@ -156,11 +173,11 @@ public class RulesController {
 		}
 	}
 
-	private FleetInfo findMinSavingFleet(ArrayList<FleetInfo> fleetList) {
-		FleetInfo minFi = new FleetInfo();
-		int minSaving = 101;
+	private FleetInfo findMinSavingFleet(ArrayList<FleetInfo> fleetList, ArrayList<FleetInfo> ignoreMinFleets) {
+		FleetInfo minFi = null;
+		float minSaving = 100;
 		for(FleetInfo f: fleetList) {
-			if(f.getCurrentSaving()!=null && (minSaving > f.getCurrentSaving().intValue())) {
+			if(!ignoreMinFleets.contains(f) && f.getCurrentSaving()!=null && (minSaving > f.getCurrentSaving())) {
 				minSaving = f.getCurrentSaving();
 				minFi = f;
 			}
@@ -169,10 +186,10 @@ public class RulesController {
 	}
 
 	private FleetInfo findMaxSavingFleet(ArrayList<FleetInfo> fleetList) {
-		FleetInfo maxFi = new FleetInfo();
-		int maxSaving = -1;
+		FleetInfo maxFi = null;
+		float maxSaving = 0;
 		for(FleetInfo f: fleetList) {
-			if(f.getCurrentSaving()!=null && (maxSaving < f.getCurrentSaving().intValue())) {
+			if(f.getCurrentSaving()!=null && (maxSaving < f.getCurrentSaving())) {
 				maxSaving = f.getCurrentSaving();
 				maxFi = f;
 			}
