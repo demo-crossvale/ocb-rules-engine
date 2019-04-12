@@ -2,13 +2,12 @@ package com.model.request;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
+import com.service.util.ValidateUtil;
 
 public class RulesEngineRequest implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+	private static ValidateUtil vUtil = new ValidateUtil();
 
 	private java.lang.String currentDateTime;
 	private ArrayList<com.model.FleetInfo> fleetInfo;
@@ -32,12 +31,8 @@ public class RulesEngineRequest implements Serializable {
 	}
 
 	public void setCurrentDateTime(java.lang.String currentDateTime) {
-		DateTimeFormatter parser = ISODateTimeFormat.dateTimeNoMillis();
-		try {
-			this.currentDateTime = String.valueOf(parser.parseDateTime(currentDateTime).getHourOfDay()*100);
-		}catch(Exception e) {
-			this.currentDateTime = currentDateTime;
-		}
+
+		this.currentDateTime = vUtil.parseDateToGetHourAndTime(currentDateTime);
 	}
 
 	public ArrayList<com.model.FleetInfo> getFleetInfo() {

@@ -9,10 +9,14 @@ import com.model.RoleInfo;
 
 @Service
 public class RulesService {
+	/** Rules Engine Service module.
+	 * Executes rules against provided fact
+	 * @author ragrahari
+	**/
 
 	private final KieContainer kieContainer;
 
-	private final String[] RULES_ORDER = {"initialize","scheduler","adhoc","performance","workload"};
+	private final String[] RULES_ORDER = {"initialize","scheduler","adhoc","performance","workload","sanitycheck"};
 	
 	@Autowired
 	public RulesService(KieContainer kieContainer) {

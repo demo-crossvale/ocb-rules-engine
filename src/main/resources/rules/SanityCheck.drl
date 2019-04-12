@@ -3,18 +3,17 @@ package com.resources;
 
 import com.model.RoleInfo;
 
-// Initialization rules go here:
+// SanityCheck rules go here:
 
-rule "Initialize"
+rule "SanityCheck"
 	dialect "mvel"
 	no-loop true
-	lock-on-active true
-	ruleflow-group "initialize"
+	ruleflow-group "sanitycheck"
 	when
-		r: RoleInfo()
+		r: RoleInfo( roleTargetCapacity < 0)
 	then
 		modify(r) {
 			setRoleTargetCapacity(0)
 		}
-		System.out.println("Initialized");
+		System.out.println("Fired Sanity Check");
 end

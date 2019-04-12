@@ -1,17 +1,17 @@
 package com.model;
 
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
+import com.service.util.ValidateUtil;
 
 public class PerformanceInfo implements java.io.Serializable {
 
 	private static final long serialVersionUID = 1L;
+	private static ValidateUtil vUtil = new ValidateUtil();
 
-	private java.lang.Float cpu;
-	private java.lang.Float memory;
+	private java.lang.Double cpu;
+	private java.lang.Double memory;
 	private java.lang.String dateTime;
 
-	public PerformanceInfo(Float cpu, Float memory, String dateTime) {
+	public PerformanceInfo(Double cpu, Double memory, String dateTime) {
 
 		this.cpu = cpu;
 		this.memory = memory;
@@ -22,20 +22,20 @@ public class PerformanceInfo implements java.io.Serializable {
 
 	}
 
-	public java.lang.Float getCpu() {
+	public java.lang.Double getCpu() {
 		return cpu;
 	}
 
-	public void setCpu(java.lang.Float cpu) {
-		this.cpu = cpu;
+	public void setCpu(java.lang.Double cpu) {
+		this.cpu = vUtil.validatePercentRange(cpu);
 	}
 
-	public java.lang.Float getMemory() {
+	public java.lang.Double getMemory() {
 		return memory;
 	}
 
-	public void setMemory(java.lang.Float memory) {
-		this.memory = memory;
+	public void setMemory(java.lang.Double memory) {
+		this.memory = vUtil.validatePercentRange(memory);
 	}
 
 	public java.lang.String getDateTime() {
@@ -43,12 +43,7 @@ public class PerformanceInfo implements java.io.Serializable {
 	}
 
 	public void setDateTime(java.lang.String dateTime) {
-		DateTimeFormatter parser = ISODateTimeFormat.dateTimeNoMillis();
-		try {
-			this.dateTime = String.valueOf(parser.parseDateTime(dateTime).getHourOfDay()*100);
-		}catch(Exception e) {
-			this.dateTime = dateTime;
-		}
+		this.dateTime = vUtil.parseDateToGetHourAndTime(dateTime);
 	}
 
 }

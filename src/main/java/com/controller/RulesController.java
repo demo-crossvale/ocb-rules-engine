@@ -22,6 +22,9 @@ import com.service.RulesService;
 
 @RestController
 public class RulesController {
+	/** Controller for Rules Engine. REST requests are consumed here
+	 * @author ragrahari
+	 **/
 
 	private final RulesService rulesService;
 
@@ -114,8 +117,8 @@ public class RulesController {
 					// Selecting latest dateTime because the average is for last few minutes:
 					flatPI.setDateTime(pi.getDateTime());
 				}
-				flatPI.setCpu(new Float(cpuSum/size));
-				flatPI.setMemory(new Float(memorySum/size));
+				flatPI.setCpu(new Double(cpuSum/size));
+				flatPI.setMemory(new Double(memorySum/size));
 				role.setFlatPerformanceInfo(flatPI);
 			}
 		}
@@ -150,7 +153,7 @@ public class RulesController {
 				while(true) {
 					FleetInfo minSavingFleet = findMinSavingFleet(fleetList, ignoreMinFleets);
 					if(minSavingFleet == null) {
-						System.out.println("\nError computing min saving Fleets");
+						System.out.println("\nNo fleets eligible for scale down");
 						break;
 					}
  					Integer capacityDiff = (fleetTargetSum - ri.getRoleTargetCapacity()); 
@@ -175,7 +178,7 @@ public class RulesController {
 
 	private FleetInfo findMinSavingFleet(ArrayList<FleetInfo> fleetList, ArrayList<FleetInfo> ignoreMinFleets) {
 		FleetInfo minFi = null;
-		float minSaving = 100;
+		double minSaving = 100;
 		for(FleetInfo f: fleetList) {
 			if(!ignoreMinFleets.contains(f) && f.getCurrentSaving()!=null && (minSaving > f.getCurrentSaving())) {
 				minSaving = f.getCurrentSaving();
@@ -187,7 +190,7 @@ public class RulesController {
 
 	private FleetInfo findMaxSavingFleet(ArrayList<FleetInfo> fleetList) {
 		FleetInfo maxFi = null;
-		float maxSaving = 0;
+		double maxSaving = 0;
 		for(FleetInfo f: fleetList) {
 			if(f.getCurrentSaving()!=null && (maxSaving < f.getCurrentSaving())) {
 				maxSaving = f.getCurrentSaving();
