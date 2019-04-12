@@ -109,16 +109,16 @@ public class RulesController {
 			for(RoleInfo role: rulesRequest.getRoleInfo()) {
 				int size = role.getPerformanceInfo().size();
 				PerformanceInfo flatPI = new PerformanceInfo();
-				int cpuSum = 0;
-				int memorySum = 0;
+				double cpuSum = 0;
+				double memorySum = 0;
 				for(PerformanceInfo pi: role.getPerformanceInfo()) {
 					cpuSum += pi.getCpu();
 					memorySum += pi.getMemory();
 					// Selecting latest dateTime because the average is for last few minutes:
 					flatPI.setDateTime(pi.getDateTime());
 				}
-				flatPI.setCpu(new Double(cpuSum/size));
-				flatPI.setMemory(new Double(memorySum/size));
+				flatPI.setCpu(cpuSum/size);
+				flatPI.setMemory(memorySum/size);
 				role.setFlatPerformanceInfo(flatPI);
 			}
 		}
