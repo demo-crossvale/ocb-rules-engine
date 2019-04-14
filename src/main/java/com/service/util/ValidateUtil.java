@@ -17,7 +17,7 @@ public class ValidateUtil {
 				double hour = parser.parseDateTime(inputDate).getHourOfDay()*100;//HH
 				double minute = parser.parseDateTime(inputDate).getMinuteOfHour();//MM
 				double second = parser.parseDateTime(inputDate).getSecondOfMinute();//SS
-
+				
 				Double hhmmss = hour+minute+(second/100);// HHMM.SS
 				parsedTime = String.valueOf(hhmmss);
 			}catch(IllegalArgumentException iae) {
