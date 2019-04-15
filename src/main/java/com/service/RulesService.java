@@ -5,6 +5,7 @@ import org.kie.api.runtime.KieSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.model.FleetInfo;
 import com.model.RoleInfo;
 
 @Service
@@ -32,6 +33,31 @@ public class RulesService {
 		}
 		kieSession.dispose();
 		return roleFact;
+	}
+	
+	public boolean performanceSanityTrigger(RoleInfo roleInfo, FleetInfo fleetInfo) {
+		boolean trigger = false;
+		if(isPerformanceHigh(roleInfo) && roleInfo.getRoleTargetCapacity() < fleetInfo.getCurrentCapacity()) {
+			trigger = true;
+		}else if (isPerformanceLow(roleInfo) && roleInfo.getRoleTargetCapacity() > 1 
+				&& roleInfo.getRoleTargetCapacity() >= fleetInfo.getCurrentCapacity()) {
+			trigger = true;
+		}
+		return trigger;
+	}
+
+	private boolean isPerformanceLow(RoleInfo roleInfo) {
+		if(roleInfo.getFlatPerformanceInfo().getCpu() < 15 && roleInfo.getFlatPerformanceInfo().getMemory() < 15) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean isPerformanceHigh(RoleInfo roleInfo) {
+		if(roleInfo.getFlatPerformanceInfo().getCpu() > 85 || roleInfo.getFlatPerformanceInfo().getMemory() > 85) {
+			return true;
+		}
+		return false;
 	}
 
 }

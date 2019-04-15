@@ -3,6 +3,9 @@ package com.model;
 import java.util.ArrayList;
 
 public class RoleInfo implements java.io.Serializable {
+	/**
+	 * @author ragrahari
+	 */
 
 	private static final long serialVersionUID = 1L;
 

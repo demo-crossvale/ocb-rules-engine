@@ -3,6 +3,7 @@ package com.resources;
 
 import com.model.RoleInfo;
 
+// @auther: ragrahari
 // SanityCheck rules go here:
 
 rule "SanityCheck"
@@ -10,10 +11,10 @@ rule "SanityCheck"
 	no-loop true
 	ruleflow-group "sanitycheck"
 	when
-		r: RoleInfo( roleTargetCapacity < 0)
+		r: RoleInfo( roleTargetCapacity < 1)
 	then
 		modify(r) {
-			setRoleTargetCapacity(0)
+			setRoleTargetCapacity(1)
 		}
 		System.out.println("Fired Sanity Check");
 end

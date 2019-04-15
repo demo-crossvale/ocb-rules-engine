@@ -2,6 +2,8 @@ package com.resources;
 
 import com.model.RoleInfo;
 
+// @author: ragrahari
+
 rule "New Year adhoc"
 	no-loop true
 	ruleflow-group "adhoc"

@@ -1,6 +1,8 @@
 package com.controller;
 
 import java.util.ArrayList;
+import java.util.Date;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +45,7 @@ public class RulesController {
 		boolean invalidState = false;
 
 		System.out.println("<== Begin: Rules Engine ==>");
+		System.out.println(new Date());
 
 		try {
 			if(request.getCurrentDateTime()==null) {
@@ -135,20 +138,34 @@ public class RulesController {
 			// No change if fleets already are at target capacity
 			if(fleetTargetSum < ri.getRoleTargetCapacity()) { 
 				// Scale up
-				System.out.print("Scaling Up \n >> role: "+ri.getRole());
 				FleetInfo maxSavingFleet = findMaxSavingFleet(fleetList);
 				if(maxSavingFleet == null) {
 					System.out.println("Error computing max saving Fleets");
 				}else {
 					fc = new FleetChange();
-					System.out.println(" >> fleet: "+maxSavingFleet.getFleetId());
 					Integer capacityDiff = (ri.getRoleTargetCapacity() - fleetTargetSum); 
 					fc.setFleetId(maxSavingFleet.getFleetId());
-					fc.setNewTargetCapacity(maxSavingFleet.getCurrentCapacity()+capacityDiff);
+					boolean performanceSanityTrigger = rulesService.performanceSanityTrigger(ri, maxSavingFleet);
+					if(performanceSanityTrigger) {
+						// Performance is low but the roleTargetCap was greater than currentCap
+						System.out.print("Resource Usage is low.");
+						int gradualDecrease=1;
+						if (maxSavingFleet.getCurrentCapacity() == 1) {
+							System.out.println(" But Current Fleet Capacity already at minimum. \n No scaling needed for >> role: "+ri.getRole());
+							fc=null;
+							continue;
+						}else {
+							System.out.print("Gradually Scaling Down \n >> role: "+ri.getRole());
+						}
+						fc.setNewTargetCapacity(maxSavingFleet.getCurrentCapacity()-gradualDecrease);
+					}else {
+						System.out.print("Scaling Up \n >> role: "+ri.getRole());
+						fc.setNewTargetCapacity(maxSavingFleet.getCurrentCapacity()+capacityDiff);
+					}
+					System.out.println(" >> fleet: "+maxSavingFleet.getFleetId());
 				}
 			} else if(fleetTargetSum > ri.getRoleTargetCapacity()) { 
 				// Scale down
-				System.out.print("Scaling Down \n >> role: "+ri.getRole());
 				java.util.ArrayList<com.model.FleetInfo> ignoreMinFleets = new java.util.ArrayList<com.model.FleetInfo>();
 				while(true) {
 					FleetInfo minSavingFleet = findMinSavingFleet(fleetList, ignoreMinFleets);
@@ -156,8 +173,16 @@ public class RulesController {
 						System.out.println("\nNo fleets eligible for scale down");
 						break;
 					}
- 					Integer capacityDiff = (fleetTargetSum - ri.getRoleTargetCapacity()); 
+					Integer capacityDiff = (fleetTargetSum - ri.getRoleTargetCapacity()); 
 					int newTarget = minSavingFleet.getCurrentCapacity()-capacityDiff;
+					boolean performanceSanityTrigger = rulesService.performanceSanityTrigger(ri, minSavingFleet);
+					if(performanceSanityTrigger) {
+						// Performance is low but the roleTargetCap was greater than currentCap
+						System.out.print("Resource Usage is high. Gradually Scaling Up \n >> role: "+ri.getRole());
+						newTarget = minSavingFleet.getCurrentCapacity()+1;
+					}else {
+						System.out.print("Scaling Down \n >> role: "+ri.getRole());
+					}
 					// make sure the targetFleet don't go below 0 
 					if(newTarget > 0) {
 						fc = new FleetChange();

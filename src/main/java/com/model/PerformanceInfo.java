@@ -3,6 +3,10 @@ package com.model;
 import com.service.util.ValidateUtil;
 
 public class PerformanceInfo implements java.io.Serializable {
+	
+	/**
+	 * @author ragrahari
+	 */
 
 	private static final long serialVersionUID = 1L;
 	private static ValidateUtil vUtil = new ValidateUtil();

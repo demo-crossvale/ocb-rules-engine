@@ -6,6 +6,10 @@ import com.model.request.RulesEngineRequest;
 import com.model.response.RulesEngineResponse;
 
 public class RulesFact implements Serializable {
+	
+	/**
+	 * @author ragrahari
+	 */
 
 	private static final long serialVersionUID = 1L;
 	

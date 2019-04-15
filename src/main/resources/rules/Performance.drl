@@ -3,6 +3,8 @@ package com.resources;
 
 import com.model.RoleInfo;
 
+// @author: ragrahari
+
 rule "gradualScaleUp"
 	dialect "mvel"
 	no-loop true
