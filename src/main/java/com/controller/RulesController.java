@@ -150,7 +150,7 @@ public class RulesController {
 						// Performance is low but the roleTargetCap was greater than currentCap
 						System.out.print("Resource Usage is low.");
 						int gradualDecrease=1;
-						if (maxSavingFleet.getCurrentCapacity() == 1) {
+						if (maxSavingFleet.getCurrentCapacity() <= 1) {
 							System.out.println(" But Current Fleet Capacity already at minimum. \n No scaling needed for >> role: "+ri.getRole());
 							fc=null;
 							continue;
