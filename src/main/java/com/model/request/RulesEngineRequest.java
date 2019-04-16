@@ -2,13 +2,10 @@ package com.model.request;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import com.service.util.ValidateUtil;
 
 public class RulesEngineRequest implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	private static ValidateUtil vUtil = new ValidateUtil();
-
 	private java.lang.String currentDateTime;
 	private ArrayList<com.model.FleetInfo> fleetInfo;
 	private ArrayList<com.model.RoleInfo> roleInfo;
@@ -32,7 +29,7 @@ public class RulesEngineRequest implements Serializable {
 
 	public void setCurrentDateTime(java.lang.String currentDateTime) {
 
-		this.currentDateTime = vUtil.parseDateToGetHourAndTime(currentDateTime);
+		this.currentDateTime = currentDateTime;
 	}
 
 	public ArrayList<com.model.FleetInfo> getFleetInfo() {

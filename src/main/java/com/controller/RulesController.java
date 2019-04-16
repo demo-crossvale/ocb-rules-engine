@@ -1,8 +1,6 @@
 package com.controller;
 
 import java.util.ArrayList;
-import java.util.Date;
-
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +43,7 @@ public class RulesController {
 		boolean invalidState = false;
 
 		System.out.println("<== Begin: Rules Engine ==>");
-		System.out.println(new Date());
+		System.out.println("OCB Current Date-Time: "+request.getCurrentDateTime());
 
 		try {
 			if(request.getCurrentDateTime()==null) {

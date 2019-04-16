@@ -1,5 +1,6 @@
 package com.service.util;
 
+import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 
@@ -14,11 +15,12 @@ public class ValidateUtil {
 		String parsedTime = new String();
 		if(inputDate!=null) {
 			try {
-				double hour = parser.parseDateTime(inputDate).getHourOfDay()*100;//HH
-				double minute = parser.parseDateTime(inputDate).getMinuteOfHour();//MM
-				double second = parser.parseDateTime(inputDate).getSecondOfMinute();//SS
+				LocalDateTime ldt = parser.parseLocalDateTime(inputDate);
+				double hour = ldt.getHourOfDay();//HH
+				double minute = ldt.getMinuteOfHour();//MM
+				double second = ldt.getSecondOfMinute();//SS
 				
-				Double hhmmss = hour+minute+(second/100);// HHMM.SS
+				Double hhmmss = (hour*100)+minute+(second/100);// HHMM.SS
 				parsedTime = String.valueOf(hhmmss);
 			}catch(IllegalArgumentException iae) {
 				// This means that the input date has already been parsed. This is not an error.
