@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import com.model.FleetChange;
 import com.model.FleetInfo;
 import com.model.PerformanceInfo;
@@ -37,6 +38,7 @@ public class RulesController {
 	@ResponseBody
 	public String cloudBalance(@RequestBody RulesEngineRequest request) throws Exception{
 
+		System.out.println(new Gson().toJson(request));
 		// Step 1: Fire rules to calculate intendedTargetCapacity for each roles
 		RulesFact inputFact = new RulesFact();
 		RulesFact outputFact = new RulesFact();
@@ -108,19 +110,24 @@ public class RulesController {
 		}
 		if(rulesRequest.getRoleInfo().size()>0) {
 			for(RoleInfo role: rulesRequest.getRoleInfo()) {
-				int size = role.getPerformanceInfo().size();
-				PerformanceInfo flatPI = new PerformanceInfo();
-				double cpuSum = 0;
-				double memorySum = 0;
-				for(PerformanceInfo pi: role.getPerformanceInfo()) {
-					cpuSum += pi.getCpu();
-					memorySum += pi.getMemory();
-					// Selecting latest dateTime because the average is for last few minutes:
-					flatPI.setDateTime(pi.getDateTime());
+				try {
+					int size = role.getPerformanceInfo().size();
+					PerformanceInfo flatPI = new PerformanceInfo();
+					double cpuSum = 0;
+					double memorySum = 0;
+					for(PerformanceInfo pi: role.getPerformanceInfo()) {
+						cpuSum += pi.getCpu();
+						memorySum += pi.getMemory();
+						// Selecting latest dateTime because the average is for last few minutes:
+						flatPI.setDateTime(pi.getDateTime());
+					}
+					flatPI.setCpu(cpuSum/size);
+					flatPI.setMemory(memorySum/size);
+					role.setFlatPerformanceInfo(flatPI);
+				}catch(ArithmeticException ae) {
+					System.out.println("DivideByZero Exception occurred while calculating flat performance.");
+					throw ae;
 				}
-				flatPI.setCpu(cpuSum/size);
-				flatPI.setMemory(memorySum/size);
-				role.setFlatPerformanceInfo(flatPI);
 			}
 		}
 	}
